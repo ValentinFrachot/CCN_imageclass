@@ -17,19 +17,31 @@ trainloader = torch.utils.data.DataLoader(trainset, batch_size=32, shuffle=True)
 testset = torchvision.datasets.MNIST(root='../data/', train=False, download=True, transform=transform)
 testloader = torch.utils.data.DataLoader(testset, batch_size=32, shuffle=False) # Chargement des données de test sans mélange
 
+# Définition d'une classe de réseau de neurones convolutifs personnalisée héritant de nn.Module (PyTorch)
 class MonCNN(nn.Module):
+    # Constructeur de la classe
     def __init__(self):
-        super(MonCNN, self).__init__()
-        self.conv1 = nn.Conv2d(1,64,kernel_size=(3,3), padding=(1,1))
-        self.conv2 = nn.Conv2d(64,64,kernel_size=(3,3), padding=(1,1))
+        super(MonCNN, self).__init__()  # Appelle le constructeur de la classe parente nn.Module
+        # Première couche convolutive : prend 1 canal en entrée (ex : image en niveaux de gris), 64 filtres, kernel 3x3, padding pour garder la taille constante
+        self.conv1 = nn.Conv2d(1, 64, kernel_size=(3,3), padding=(1,1))
+        # Deuxième couche convolutive : 64 canaux d'entrée (de la couche précédente), 64 filtres, kernel 3x3, padding
+        self.conv2 = nn.Conv2d(64, 64, kernel_size=(3,3), padding=(1,1))
+        # Couche de pooling max 2x2 : réduit la taille spatiale de moitié
         self.pool = nn.MaxPool2d(2, 2)
+        # Couche entièrement connectée, entrée de taille 3136 (pour des images 28x28 après deux poolings), sortie 10 classes (ex : pour MNIST)
         self.fc2 = nn.Linear(3136, 10)
-    def forward(self,x):
+
+    # Fonction de passage en avant (forward) du réseau
+    def forward(self, x):
+        # Applique conv1, puis ReLU, puis pooling
         x = self.pool(torch.relu(self.conv1(x)))
+        # Applique conv2, puis ReLU, puis pooling
         x = self.pool(torch.relu(self.conv2(x)))
+        # Aplati le tenseur pour passer à la couche entièrement connectée (batch_size, -1)
         x = x.view(x.size(0), -1)
+        # Passage à la couche entièrement connectée
         x = self.fc2(x)
-        return x
+        return x  # Retourne les scores pour chaque classe
 
 
 net = MonCNN() #appel du modèle
