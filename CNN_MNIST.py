@@ -70,7 +70,7 @@ for epoch in range(5):  # 5 passes sur le dataset
             running_loss = 0.0
 
     train_losses.append(epoch_loss / len(trainloader))  # Moyenne sur toute l’époque
-
+classes = [str(i) for i in range(10)]
 correct = 0
 total = 0
 class_correct = [0] * 10  # Liste pour stocker les prédictions correctes par classe
